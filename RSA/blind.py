@@ -14,12 +14,12 @@ def is_prime(n, k=30):
         s, d = s+1, d>>1
     assert 2 ** s * d == neg_one and d & 1
 
-    for i in xrange(k):
+    for i in range(k):
         a = randrange(2, neg_one)
         x = pow(a, d, n)
         if x in (1, neg_one):
             continue
-        for r in xrange(1, s):
+        for r in range(1, s):
             x = x ** 2 % n
             if x == 1:
                 return False
@@ -70,7 +70,7 @@ def keygen(N, public=None):
 def signature(msg, privkey):
     f=open('signedfile','w')
     coded = pow(int(msg), *privkey)% privkey[1]
-    print "Blinded Signed Message "+str(coded)
+    print ("Blinded Signed Message "+str(hex(coded)))
     f.write(str(coded))
 
 def blindingfactor(N):
@@ -85,7 +85,7 @@ def blind(msg,pubkey):
     r=blindingfactor(pubkey[1])
     m=int(msg)
     blindmsg=(pow(r,*pubkey)*m)% pubkey[1]
-    print "Blinded Message "+str(blindmsg)
+    print ("Blinded Message "+str(hex(blindmsg)))
     f.write(str(blindmsg))
     return r
 
@@ -93,45 +93,8 @@ def unblind(msg,r,pubkey):
 	f=open('unblindsigned','w')
 	bsm=int(msg)
 	ubsm=(bsm*multinv(pubkey[1],r))% pubkey[1]
-	print "Unblinded Signed Message "+str(ubsm)
+	print ("Unblinded Signed Message "+str(hex(ubsm)))
 	f.write(str(ubsm))
 
 def verefy(msg,r,pubkey):
-    print "Message After Verification "+str(pow(int(msg),*pubkey)%pubkey[1])
-
-if __name__ == '__main__':
-    
-    # bob wants to send msg after blinding it
-    f=open('msg')
-    pubkey, privkey = keygen(2 ** 128)
-    msg=f.read()
-    msg=msg.rstrip()
-    print "Original Message "+str(msg)
-    r=blind(msg,pubkey)
-
-    #Alice receives the blind message and signs it
-    bf=open('blindmsg')
-    m=bf.read()
-    signature(m, privkey)
-
-    #Bob recieves the signed message and unblinds it
-    h=open('signedfile')
-    signedmsg=h.read()
-    unblind(signedmsg,r,pubkey)
-    
-    #verifier verefis the message
-    i=open('unblindsigned')
-    ubsignedmsg=i.read()
-    verefy(ubsignedmsg,r,pubkey)
-
-    '''print('-' * 20)
-    print(msg)
-    print(r)
-    print('-'*20)
-    a=5
-    b=a*pow(19,11) % 77
-    c=pow(b,11)%77
-    print c
-    d=(c*73) % 77
-    print d
-    print pow(d,11)%77 '''
+    print ("Message After Verification "+str(hex(pow(int(msg),*pubkey)%pubkey[1])))
