@@ -68,10 +68,8 @@ def keygen(N, public=None):
     return KeyPair(Key(public, composite), Key(private, composite))
 
 def signature(msg, privkey):
-    f=open('signedfile','w')
-    coded = pow(int(msg), *privkey)% privkey[1]
-    print ("Blinded Signed Message "+str(hex(coded)))
-    f.write(str(coded))
+    coded = pow(int(msg, 16), *privkey)% privkey[1]
+    return hex(coded)
 
 def blindingfactor(N):
     b=random()*(N-1)
@@ -80,21 +78,16 @@ def blindingfactor(N):
         r=r+1
     return r
 
-def blind(msg,pubkey):
-    f=open('blindmsg','w')
+def blind(msg, pubkey):
     r=blindingfactor(pubkey[1])
-    m=int(msg)
+    m=int(msg, 16)
     blindmsg=(pow(r,*pubkey)*m)% pubkey[1]
-    print ("Blinded Message "+str(hex(blindmsg)))
-    f.write(str(blindmsg))
-    return r
+    return r, hex(blindmsg)
 
-def unblind(msg,r,pubkey):
-	f=open('unblindsigned','w')
-	bsm=int(msg)
+def unblind(msg, r,  pubkey):
+	bsm=int(msg, 16)
 	ubsm=(bsm*multinv(pubkey[1],r))% pubkey[1]
-	print ("Unblinded Signed Message "+str(hex(ubsm)))
-	f.write(str(ubsm))
+	return hex(ubsm)
 
-def verefy(msg,r,pubkey):
-    print ("Message After Verification "+str(hex(pow(int(msg),*pubkey)%pubkey[1])))
+def verify(msg, pubkey):
+    return hex(pow(int(msg, 16),*pubkey)%pubkey[1])
